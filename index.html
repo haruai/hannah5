@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#34202e" />
+    <meta
+      name="description"
+      content="A little world of your own. A quiet sunset, familiar memories, and a letter for Hannah."
+    />
+    <title>a little world of your own — Hannah</title>
+    <link rel="preload" as="image" href="/art/idle/room.png" />
+    <link rel="icon" type="image/svg+xml" href="/heart.svg" />
+  </head>
+  <body>
+    <main id="world" aria-label="Hannah’s cozy pixel-art bedroom at sunset">
+      <div id="camera">
+        <canvas
+          id="scene"
+          width="640"
+          height="360"
+          role="img"
+          aria-label="A girl and sleeping black cat on a pink quilt, beside a bouquet of roses and tulips. Sunset falls through a blossom-filled window. Hannah’s name glows above framed artwork of a woman with a dog and a black cat."
+        ></canvas
+        ><button
+          id="envelope"
+          disabled
+          aria-label="Open the letter I made for you"
+          aria-haspopup="dialog"
+        >
+          <span>letter for you</span>
+        </button>
+      </div>
+      <p id="loading" role="status">a little moment… <span>♡</span></p>
+      <div id="shade"></div>
+      <section
+        id="letter"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="letter-title"
+        hidden
+        tabindex="-1"
+      >
+        <div class="paper">
+          <button id="close" aria-label="Close letter">×</button>
+          <h1 id="letter-title"></h1>
+          <div id="letter-body"></div>
+          <p id="signature"></p>
+        </div>
+      </section>
+      <span id="announcement" class="sr-only" aria-live="polite"></span>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
