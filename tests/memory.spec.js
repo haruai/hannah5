@@ -9,7 +9,7 @@ test("supplied memory image is preserved byte for byte", () => {
       "16aaf531fe6ae152156d78c1ca913b2405e1a0dfef6bac7ed6bb97d46cd6ca22",
   ).toBe(true);
 });
-test("desktop discovery, delayed reveal, close and replay, letter coexistence", async ({
+test("desktop discovery, delayed reveal, close and replay", async ({
   page,
 }) => {
   const errors = [];
@@ -30,7 +30,6 @@ test("desktop discovery, delayed reveal, close and replay, letter coexistence", 
   await page.waitForTimeout(400);
   await page.screenshot({ path: "test-results/cat-memory-desktop.png" });
   await expect(card.getByText("your childhood cat ♡")).toBeVisible();
-  await expect(page.locator("#shade")).toHaveCSS("opacity", "0");
   await cat.click();
   await expect(page.locator("#cat-memory")).toHaveCount(1);
   await page.getByRole("button", { name: "Close cat memory" }).click();
@@ -39,16 +38,9 @@ test("desktop discovery, delayed reveal, close and replay, letter coexistence", 
   await page.keyboard.press("Enter");
   await expect(card).toBeHidden();
   await expect(card).toBeVisible();
-  await page.locator("#envelope").click();
-  await expect(card).toBeHidden();
-  await expect(cat).toBeDisabled();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toBeHidden();
-  await expect(cat).toBeEnabled();
   expect(errors).toEqual([]);
 });
-test("mobile touch placement stays visible and clear of face bouquet and envelope", async ({
+test("mobile touch placement stays visible and clear of face bouquet", async ({
   browser,
 }) => {
   const context = await browser.newContext({
@@ -73,19 +65,6 @@ test("mobile touch placement stays visible and clear of face bouquet and envelop
   expect(card.y).toBeGreaterThanOrEqual(0);
   expect(card.x + card.width).toBeLessThanOrEqual(390);
   expect(card.y + card.height).toBeLessThanOrEqual(844);
-  const env = await page.locator("#envelope").boundingBox();
-  expect(
-    Math.max(
-      0,
-      Math.min(card.y + card.height, env.y + env.height) -
-        Math.max(card.y, env.y),
-    ) *
-      Math.max(
-        0,
-        Math.min(card.x + card.width, env.x + env.width) -
-          Math.max(card.x, env.x),
-      ),
-  ).toBe(0);
   await page.locator(".memory-close").tap();
   await expect(page.locator("#cat-memory")).toBeHidden();
   await context.close();

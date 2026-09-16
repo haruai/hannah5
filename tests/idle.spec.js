@@ -30,7 +30,6 @@ test("timings are independent, blinks have real half/closed frames, and petals h
     "blink",
     "cat-ear",
     "petal",
-    "seal",
     "city",
     "tulip",
     "ribbon",
@@ -39,15 +38,7 @@ test("timings are independent, blinks have real half/closed frames, and petals h
   const petalEvents = idle.events.filter((e) => e.name === "petal");
   for (let i = 1; i < petalEvents.length; i++)
     expect(petalEvents[i].t - petalEvents[i - 1].t).toBeGreaterThan(9500);
-  idle.letterOpened();
-  const count = idle.events.filter((e) => e.name === "seal").length;
-  idle.update(75000);
-  expect(idle.events.filter((e) => e.name === "seal").length).toBe(count);
-  idle.firstClose(80000);
-  idle.firstClose(81000);
-  expect(
-    idle.events.filter((e) => e.name === "first-close-sparkle"),
-  ).toHaveLength(1);
+
 });
 test("first twenty seconds: desktop animation stays local and frames load without errors", async ({
   browser,
@@ -63,6 +54,7 @@ test("first twenty seconds: desktop animation stays local and frames load withou
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  await page.clock.setFixedTime(new Date("2026-09-16T19:00:00Z"));
   await page.goto("http://127.0.0.1:5173");
   await expect(page.locator("#loading")).toBeHidden();
   const pixels = () =>
@@ -101,7 +93,6 @@ test("first twenty seconds: desktop animation stays local and frames load withou
     };
   });
   expect(state.events.some((e) => e.name === "blink")).toBeTruthy();
-  expect(state.events.some((e) => e.name === "seal")).toBeTruthy();
   expect((state.frames / state.time) * 1000).toBeLessThan(32);
   expect(errors).toEqual([]);
   await context.close();
@@ -139,38 +130,5 @@ test("live reduced-motion change and hidden tab suspend rendering", async ({
   });
   await page.waitForTimeout(150);
   expect(await frames()).toBeGreaterThan(a);
-  await page.locator("#envelope").click();
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toBeHidden();
-});
-test("mobile touch, return animation, and one first-close micro moment", async ({
-  browser,
-}) => {
-  const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    hasTouch: true,
-    isMobile: true,
-  });
-  const page = await context.newPage();
-  await page.goto("http://127.0.0.1:5173");
-  await expect(page.locator("#loading")).toBeHidden();
-  await page.waitForTimeout(1600);
-  await page.screenshot({ path: "test-results/mobile-idle.png" });
-  for (let i = 0; i < 2; i++) {
-    await page.locator("#envelope").tap();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await page.waitForTimeout(450);
-    await page.locator("#close").tap();
-    await expect(page.getByRole("dialog")).toBeHidden();
-    await expect(page.locator("#envelope")).toBeEnabled();
-  }
-  const events = await page.evaluate(
-    async () => (await import(document.querySelector('script[src*="/src/main.js"]').src)).idle.events,
-  );
-  expect(events.filter((e) => e.name === "first-close-sparkle")).toHaveLength(
-    1,
-  );
-  await context.close();
+
 });

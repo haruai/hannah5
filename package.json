@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "playwright test",
-    "art:prepare": "node scripts/prepare-art.mjs && node scripts/prepare-decor.mjs && node scripts/prepare-idle.mjs && node scripts/prepare-memory.mjs"
+    "art:prepare": "node scripts/prepare-art.mjs && node scripts/prepare-decor.mjs && node scripts/prepare-idle.mjs && node scripts/prepare-memory.mjs && node scripts/prepare-plant.mjs && node scripts/prepare-time.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

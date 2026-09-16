@@ -1,73 +1,43 @@
-# a little bouquet for you ♡
+# a little world of your own
 
-An interactive pixel-art bedroom with a 640 × 360 virtual canvas. Built with Vite and vanilla JavaScript, without animation libraries, remote runtime services, or game UI.
+Hannah’s 640 × 360 pixel-art room, built with Vite and vanilla JavaScript. No remote runtime services or animation libraries.
 
 ## Run
 
 ```sh
 npm install
 npm run dev
-```
-
-Open http://localhost:5173. `npm run build` creates the static site in `dist/`; `npm run preview` previews it.
-
-## Personalize the letter
-
-Edit **public/letter.json**. `title`, `paragraphs`, and `signature` are rendered as plain text. The letter contains the supplied personal message.
-
-## Living scene
-
-The existing room composition and black cat are preserved. Most of the illustration is static. Registered, irregularly masked patches swap at fixed integer coordinates; no whole-character movement, rectangular distortion, or runtime artwork warping is used.
-
-- Eyes: open → half → closed → half → open in 310 ms, every 4–8 seconds; occasional double blink.
-- Breathing: independently timed 3.6–4.9 second cycles for shoulder fabric and cat chest. Faces, hands, paws, mattress contact and shadows remain fixed.
-- Local details: a loose hair lock, one vine leaf, one blossom cluster, a tulip, a ribbon tail, and a rare sleeping ear twitch, each with its own schedule.
-- Steam: five discrete frames in two variants, with varying cycle durations. Baked-in steam is removed only from the mug's immediate background.
-- Window: isolated city lights and three tiny water glints. One drifting petal at a time, with 4–15 seconds of quiet after it disappears. The sunset stays unchanged.
-- Bouquet: occasional single sparkle. One extra sparkle after the first letter close.
-- Envelope: only the heart seal responds on hover/touch or gives a brief idle pulse every 8–15 seconds, until opened. The envelope and its shadow stay on the bed.
-
-Timings use a pauseable scene clock and independent random deadlines. Rendering is capped below 30 fps. Hidden tabs stop the scene and pause paper animations; reduced motion uses a static image, stops the idle render loop, and opens/closes the letter immediately. All scene patches decode before the loading screen disappears.
-
-## Letter interaction
-
-Ten integer-rasterized envelope frames show seal release, flap opening and rising paper. The paper unfolds from the envelope's screen location; the complete opening takes approximately 1.2 seconds. Closing folds the paper back and reverses the envelope frames in approximately 0.65 seconds.
-
-Close with ×, outside click, or Escape, including during opening. Keyboard focus returns to the envelope. Letter content scrolls on small screens.
-
-Desktop framing is preserved. Below 1024px, the camera uses full-viewport cover sizing with separate mobile, small-mobile and tablet modes. Portrait starts on Hannah and the envelope, with the cat’s head at the left edge. Drag horizontally to explore the cat or bouquet. This preserves the original artwork proportions without letterboxing or rearranging the room. Landscape uses a wide crop. The viewport tracks dynamic mobile browser chrome with `100dvh`.
-
-## Artwork and source
-
-- `artwork/source/`: original generated artwork and animation edit sources.
-- `artwork/PROMPTS.md`: exact prompts and built-in imagegen provenance.
-- `public/art/idle/`: production room, transparent local patches and coordinate manifest.
-- `scripts/prepare-art.mjs`: base 640 × 360 art, registered black cat edit and eye crops.
-- `scripts/prepare-decor.mjs`: Hannah’s wall name and supplied portrait artwork, applied only to selected wall regions.
-- `scripts/prepare-idle.mjs`: fixed-coordinate masks, steam cleanup and idle assets.
-- `src/idle.js`: independent schedules, events and breathing/frame selection.
-- `src/sprites.js`: authored pixel matrices and integer-rasterized envelope, steam, petal and sparkle frames. These are created once before rendering.
-- `src/camera.js`: responsive cover framing, bounded horizontal portrait panning, keyboard focus framing and viewport resize handling.
-- `src/main.js`: preload, canvas composition, scene clock and letter lifecycle.
-
-Regenerate production artwork with `npm run art:prepare` after editing sources. Generated edits are cropped and masked; unselected room pixels are preserved.
-
-## Verification
-
-```sh
-npx playwright install chromium # only if Chromium is missing
 npm test
 npm run build
 ```
 
-Browser tests cover a real 20-second desktop run, localized motion, event timing, loading/errors, desktop/mobile opening and closing, touch, keyboard focus, interrupted openings, first-close behavior, reduced motion changes, and hidden-tab suspension. Review screenshots and a recorded desktop video are written to `test-results/`.
+The development URL is http://localhost:5173. The static build is in `dist/`.
 
-With the dev server running, `node scripts/review-frames.mjs` also captures enlarged eyelid frames and letter sequence screenshots for visual inspection.
+## Local time
 
-## Childhood cat memory
+`src/room-time.js` reads the browser's local `Date.getHours()`: morning 06–11, day 12–16, evening 17–21, sleeping 22–05. It schedules the next boundary and checks at least every 30 seconds for device clock/timezone changes. Returning to the tab also rechecks. No server clock, visible time display, or mode toggle is used.
 
-The sleeping cat has an invisible, keyboard-accessible hit area. Hover gives one tiny heart and a local breathing lift; clicking or tapping plays a 1.32-second ear/head/blink/heart sequence, then reveals a single cream memory card. Its placement avoids the face, bouquet, envelope and wall portraits, and clamps to the viewport. The close control and Escape restore focus; closing then clicking again replays the sequence. Opening the letter dismisses the memory and disables its hit area until the letter closes.
+`src/main.js` preloads the artwork and composes one room canvas. Lighting fades over 1.6 seconds; changes between awake and sleeping poses use a brief ordered pixel dissolve. Animation uses a separate pauseable clock, integer positions and a frame rate below 30 fps. Hidden tabs suspend rendering. Reduced motion skips movement and transitions and stops the idle loop.
 
-`src/cat-memory.js` and `src/cat-memory.css` contain this feature. It uses the existing scene clock, pixel heart and ear/chest patches. Reduced motion immediately reveals the card. `public/art/memory/childhood-cat.png` is the supplied artwork copied byte for byte; it is not regenerated. `scripts/prepare-memory.mjs` extracts only the separate scene-cat recognition frame. Tests cover source-image integrity, desktop replay, mobile tapping/placement, reduced motion, focus and letter coexistence.
+The original sunset artwork remains the evening room. Morning/day variants have natural lighting and an unlit lamp. Night has an illuminated Toronto skyline, moonlight, warm lamps, and a separate sleeping pose on a pillow under the quilt. The envelope, letter data, modal and letter-only logic have been removed.
 
-Mobile camera checks include 390 × 844, 393 × 852, 430 × 932, landscape, tablet and desktop. Hotspots use artwork-relative percentages with 44px minimum tap dimensions. The mobile letter uses 92% viewport width and at most 88dvh, scrolling internally. Dragging across a hotspot does not activate it.
+## Discoveries
+
+- The cat memory remains a single cream stationery card using the supplied childhood-cat asset unchanged. Its night reaction briefly opens one eye; closing and reopening replays it. Keyboard controls and Escape work in every state.
+- Sleeping Hannah responds with a short dream whisper and a cooldown without waking. The window creates a stepped shooting star. The first wish message is remembered with `shootingStarMessageSeen`; later stars still work. Storage denial degrades gracefully.
+- The shelf plant retains five distinct sprites and its separate calendar-day persistence: `plantFirstVisit`, `plantLastStage`, `plantBloomSeen`. Changing room time never resets growth. Growth waits until the plant is visible; reduced motion reveals the new stage directly.
+
+## Mobile and accessibility
+
+The room covers the viewport without letterboxing. Portrait retains horizontal drag exploration; nighttime framing shifts slightly toward the cat/window while preserving the sleeping face and plant. User-panned positions are retained across time changes. Hotspots stay attached to artwork coordinates, with minimum 44px dimensions. Pointer taps do not trigger keyboard camera framing; keyboard focus brings offscreen controls into view. Dragging across a hotspot never activates it. Memory cards and whispers clamp to the viewport.
+
+## Artwork and verification
+
+- `artwork/source/room-*.png`: generated time-of-day sources and the sleeping idle edit.
+- `artwork/PROMPTS.md`: exact prompts and built-in imagegen provenance.
+- `public/art/time/`: production room images and registered animation patches.
+- `scripts/prepare-time.mjs`: nearest-neighbour preparation and local animation masks.
+- `src/night-interactions.js`: nighttime discoveries, cooldowns and wish persistence.
+- `src/cat-memory.js`, `src/growing-plant.js`: independent persistent interactions.
+
+`npm run art:prepare` rebuilds production assets from the checked-in sources. Tests cover local-hour boundaries, live 10pm/6am changes, timezones, unchanged memory image, plant progression, night interactions, reduced motion, storage denial, mobile crops/taps/panning, loading failures and hidden-tab suspension. Screenshots are saved in `test-results/`. `node scripts/review-frames.mjs` captures enlarged eyelid frames with the dev server running.

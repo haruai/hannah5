@@ -43,12 +43,4 @@ await sharp({
   .composite(panels)
   .png()
   .toFile("test-results/eye-frames.png");
-await page.locator("#envelope").click();
-await page.waitForTimeout(480);
-await page.screenshot({ path: "test-results/opening-flap.png" });
-await page.waitForTimeout(900);
-await page.locator("#close").click();
-await page.waitForTimeout(150);
-await page.screenshot({ path: "test-results/letter-return.png" });
-await page.waitForTimeout(600);
 await browser.close();

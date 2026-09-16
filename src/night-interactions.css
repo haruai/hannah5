@@ -1,0 +1,7 @@
+.world-hotspot { position: absolute; background: none; border: 0; padding: 0; outline: none; min-width: calc(44px / var(--scene-scale, 1)); min-height: calc(44px / var(--scene-scale, 1)); cursor: pointer; }
+.world-hotspot[hidden] { display: none; }
+.world-hotspot:focus-visible { outline: 1px dashed #e4c4b0; outline-offset: 2px; }
+#sleeping-hannah { left: 46.875%; top: 41.666667%; width: 16.40625%; height: 18.333333%; }
+#night-window { left: 12.5%; top: 3.333333%; width: 26.875%; height: 42.222222%; }
+.room-whisper { position: absolute; z-index: 2; pointer-events: none; max-width: min(225px, calc(100% - 24px)); margin: 0; padding: 5px 9px; font-size: 18px; line-height: 1.05; color: #6b4656; background: #f6dfc4; border: 2px solid #a67180; box-shadow: 2px 2px 0 #3d293c; }
+.room-whisper[hidden] { display: none; }

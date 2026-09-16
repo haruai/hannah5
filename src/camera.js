@@ -13,7 +13,8 @@ export class RoomCamera {
     window.visualViewport?.addEventListener("resize", this.resize);
     this.observer = new ResizeObserver(this.resize);
     this.observer.observe(world);
-    element.addEventListener("pointerdown", (e) => this.down(e));
+    element.addEventListener("pointerdown", (e) => { this.pointerFocus = true; this.down(e); });
+    document.addEventListener("keydown", () => { this.pointerFocus = false; });
     element.addEventListener("pointermove", (e) => this.move(e));
     element.addEventListener("pointerup", (e) => this.up(e));
     element.addEventListener("pointercancel", (e) => this.up(e));
@@ -42,7 +43,7 @@ export class RoomCamera {
             ? "tablet"
             : "desktop";
     const portrait = w < 1024 && w / h < 1.3;
-    if (portrait && !this.portrait) this.center = w < 768 ? 337 : 350;
+    if (portrait && !this.portrait) this.center = w < 768 ? (this.sleeping ? 314 : 337) : 350;
     this.portrait = portrait;
     let s = Math.max(w / 640, h / 360);
     // Round scale upwards, never down, so the artwork covers all viewport edges.
@@ -54,6 +55,14 @@ export class RoomCamera {
     this.maxCenter = Math.min(640 - w / (2 * s), 476);
     this.center = clamp(this.center, this.minCenter, this.maxCenter);
     this.apply();
+  }
+  setState(state) {
+    const oldDefault = this.sleeping ? 314 : 337;
+    this.sleeping = state === 'sleeping';
+    if (this.portrait && this.width < 768 && Math.abs(this.center-oldDefault) < 1) {
+      this.center = this.sleeping ? 314 : 337;
+      this.apply();
+    }
   }
   apply() {
     const w = this.width,
@@ -68,7 +77,24 @@ export class RoomCamera {
     this.element.style.touchAction = this.portrait ? "none" : "manipulation";
     this.element.dispatchEvent(new Event("camerachange"));
   }
+  async revealWindow(reducedMotion) {
+    if (!this.portrait) return;
+    const rect = this.element.getBoundingClientRect();
+    const left = -rect.left / this.scale;
+    // A sliver of the frame is tappable in portrait; bring a sky pane into view.
+    if (left < 200) return;
+    const from = this.element.style.transform;
+    this.center = clamp(277, this.minCenter, this.maxCenter);
+    this.apply();
+    if (!reducedMotion) {
+      this.panAnimation?.cancel();
+      this.panAnimation = this.element.animate([{transform: from}, {transform:this.element.style.transform}], {duration:420,easing:'steps(12,end)'});
+      try { await this.panAnimation.finished; } catch {}
+    }
+    this.element.dispatchEvent(new Event('camerachange'));
+  }
   down(e) {
+    this.panAnimation?.cancel();
     if (!this.portrait || !this.canPan() || e.button !== 0 || !e.isPrimary)
       return;
     this.drag = {
@@ -106,11 +132,13 @@ export class RoomCamera {
     this.drag = null;
   }
   ensureVisible(target) {
-    if (!this.portrait || !target.matches("button:focus-visible")) return;
+    if (this.pointerFocus || !this.portrait || !target.matches("button:focus-visible")) return;
     const r = target.getBoundingClientRect(),
       w = this.width;
     if (r.left >= 12 && r.right <= w - 12) return;
-    const offset = target.id === "cat-memory-trigger" ? 244 : 347;
+    const offset =
+      Number(target.dataset.cameraX) ||
+      (target.id === "cat-memory-trigger" ? 244 : 347);
     this.center = clamp(offset, this.minCenter, this.maxCenter);
     this.apply();
   }

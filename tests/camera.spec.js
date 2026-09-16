@@ -7,12 +7,13 @@ for (const [width, height] of [
   [768, 1024],
   [1024, 768],
 ])
-  test(`camera fills ${width}x${height} and letter stays inside viewport`, async ({
+  test(`camera fills ${width}x${height} without gaps`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
+    await page.clock.setFixedTime(new Date("2026-09-16T19:00:00Z"));
+  await page.goto("/");
     await expect(page.locator("#loading")).toBeHidden();
     const scene = await page.locator("#camera").boundingBox();
     expect(scene.x).toBeLessThanOrEqual(0);
@@ -22,26 +23,9 @@ for (const [width, height] of [
     await page.screenshot({
       path: `test-results/camera-${width}x${height}.png`,
     });
-    const env = await page.locator("#envelope").boundingBox();
-    expect(env.width).toBeGreaterThanOrEqual(44);
-    expect(env.height).toBeGreaterThanOrEqual(44);
-    await page.locator("#envelope").click();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await page.screenshot({
-      path: `test-results/letter-${width}x${height}.png`,
-    });
-    if (width < 768) {
-      const paper = await page.locator(".paper").boundingBox();
-      expect(paper.width / width).toBeGreaterThanOrEqual(0.9);
-      expect(paper.width / width).toBeLessThanOrEqual(0.94);
-      expect(paper.height / height).toBeLessThanOrEqual(0.9);
-    }
     expect(
       await page.evaluate(() => document.documentElement.scrollHeight),
     ).toBe(height);
-    await page.locator("#signature").scrollIntoViewIfNeeded();
-    await page.keyboard.press("Escape");
-    await expect(page.getByRole("dialog")).toBeHidden();
   });
 test("phone panning reveals bouquet and cat, does not activate hotspots while dragging", async ({
   page,

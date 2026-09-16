@@ -12,7 +12,7 @@
     <link rel="icon" type="image/svg+xml" href="/heart.svg" />
   </head>
   <body>
-    <main id="world" aria-label="Hannah’s cozy pixel-art bedroom at sunset">
+    <main id="world" aria-label="Hannah’s cozy pixel-art bedroom">
       <div id="camera">
         <canvas
           id="scene"
@@ -20,34 +20,9 @@
           height="360"
           role="img"
           aria-label="A girl and sleeping black cat on a pink quilt, beside a bouquet of roses and tulips. Sunset falls through a blossom-filled window. Hannah’s name glows above framed artwork of a woman with a dog and a black cat."
-        ></canvas
-        ><button
-          id="envelope"
-          disabled
-          aria-label="Open the letter I made for you"
-          aria-haspopup="dialog"
-        >
-          <span>letter for you</span>
-        </button>
+        ></canvas>
       </div>
       <p id="loading" role="status">a little moment… <span>♡</span></p>
-      <div id="shade"></div>
-      <section
-        id="letter"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="letter-title"
-        hidden
-        tabindex="-1"
-      >
-        <div class="paper">
-          <button id="close" aria-label="Close letter">×</button>
-          <h1 id="letter-title"></h1>
-          <div id="letter-body"></div>
-          <p id="signature"></p>
-        </div>
-      </section>
-      <span id="announcement" class="sr-only" aria-live="polite"></span>
     </main>
     <script type="module" src="/src/main.js"></script>
   </body>

@@ -2,8 +2,6 @@ export class IdleScene {
   constructor(random = Math.random) {
     this.random = random;
     this.events = [];
-    this.visited = false;
-    this.micro = false;
     this.sparkleAt = -Infinity;
     this.petal = null;
     this.breaths = {
@@ -33,8 +31,6 @@ export class IdleScene {
     }));
     this.nextPetal = this.range(4400, 8000);
     this.nextSparkle = this.range(11000, 18000);
-    this.nextAttention = this.range(8500, 14000);
-    this.attentionAt = -Infinity;
     this.city = {
       next: this.range(6200, 10000),
       start: -Infinity,
@@ -49,18 +45,6 @@ export class IdleScene {
   event(name, t) {
     this.events.push({ name, t });
     if (this.events.length > 100) this.events.shift();
-  }
-  letterOpened() {
-    this.visited = true;
-    this.attentionAt = -Infinity;
-  }
-  firstClose(t) {
-    if (!this.micro) {
-      this.micro = true;
-      this.sparkleAt = t + 250;
-      this.nextSparkle = t + this.range(12000, 20000);
-      this.event("first-close-sparkle", t + 250);
-    }
   }
   update(t) {
     const active = [];
@@ -125,11 +109,6 @@ export class IdleScene {
       this.nextSparkle = t + this.range(10000, 20000);
       this.event("sparkle", t);
     }
-    if (!this.visited && t >= this.nextAttention) {
-      this.attentionAt = t;
-      this.nextAttention = t + this.range(8000, 15000);
-      this.event("seal", t);
-    }
     if (t >= this.city.next) {
       const lights = [
         [146, 116],
@@ -157,7 +136,6 @@ export class IdleScene {
         Math.floor(((t - this.steam.start) / this.steam.duration) * 5),
       ),
       steamVariant: this.steam.variant,
-      attention: t - this.attentionAt >= 0 && t - this.attentionAt < 650,
       sparkleAge: t - this.sparkleAt,
       cityAge: t - this.city.start,
       lamp:

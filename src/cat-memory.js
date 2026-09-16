@@ -132,13 +132,10 @@ export class CatMemory {
     if (restoreFocus) this.trigger.focus({ preventScroll: true });
     this.requestDraw();
   }
-  suspend() {
-    this.close({ restoreFocus: false });
-    this.hovered = false;
-    this.trigger.disabled = true;
-  }
-  resume() {
-    this.trigger.disabled = !this.ready;
+  setState(state, head) {
+    this.sleeping = state === 'sleeping';
+    this.nightHead = head;
+    if (!this.card.hidden) this.position();
   }
   draw(ctx, drawPatch) {
     if (this.motion.matches) return;
@@ -150,7 +147,7 @@ export class CatMemory {
       } else if (age < 1030) {
         drawPatch("cat-inhale");
         // Raised, sleepy eyes -> resting closed frame -> raised eyes: one blink.
-        if (age < 470 || age >= 610) ctx.drawImage(this.head, 229, 199);
+        if (age < 470 || age >= 610) ctx.drawImage(this.sleeping ? this.nightHead : this.head, 229, 199);
       }
       if (age >= 650 && age < 1250) {
         const f = (age - 650) / 600;
@@ -182,9 +179,8 @@ export class CatMemory {
       h: h * scale,
     });
     const cat = rect(179, 197, 95, 38),
-      face = rect(313, 139, 62, 58),
+      face = this.sleeping ? rect(337, 153, 66, 62) : rect(313, 139, 62, 58),
       bouquet = rect(410, 128, 145, 152),
-      envelope = rect(303, 238, 88, 55),
       wall = rect(289, 0, 210, 112);
     const width = this.card.offsetWidth,
       height = this.card.offsetHeight,
@@ -195,7 +191,7 @@ export class CatMemory {
       [cat.x - width - 16, cat.y - height / 3],
       [cat.x - width / 2, cat.y - height - 16],
       [cat.x + cat.w + 16, cat.y - height / 2],
-      [(W - width) / 2, envelope.y + envelope.h + 14],
+      [(W - width) / 2, cat.y + cat.h + 14],
       [(W - width) / 2, H - height - pad],
       [pad, face.y-height-14],
       [W-width-pad, face.y-height-14],
@@ -212,7 +208,7 @@ export class CatMemory {
           h: height,
         };
         const score =
-          [face, bouquet, envelope].reduce(
+          [face, bouquet].reduce(
             (sum, b) => sum + overlap(r, b) * 100,
             0,
           ) +

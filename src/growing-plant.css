@@ -1,0 +1,38 @@
+#plant-trigger {
+  position: absolute;
+  left: 41.5625%;
+  top: 18.055556%;
+  width: 3.75%;
+  height: 9.444444%;
+  min-width: calc(44px / var(--scene-scale, 1));
+  min-height: calc(44px / var(--scene-scale, 1));
+  background: none;
+  border: 0;
+  padding: 0;
+  outline: none;
+  cursor: pointer;
+  transform: translateX(-10%);
+  -webkit-tap-highlight-color: transparent;
+}
+#plant-trigger:disabled {
+  pointer-events: none;
+}
+#plant-whisper {
+  position: absolute;
+  z-index: 2;
+  max-width: min(220px, calc(100vw - 24px));
+  padding: 7px 10px;
+  background: #f9e4c8;
+  color: #784956;
+  border: 2px solid #ae7782;
+  box-shadow: 2px 2px 0 #56344360;
+  font:
+    18px/1.05 "VT323",
+    monospace;
+  text-align: center;
+  pointer-events: none;
+  margin: 0;
+}
+#plant-whisper[hidden] {
+  display: none;
+}
